@@ -20,13 +20,11 @@ const sendBtn = document.getElementById('sendBtn');
 const stopBtn = document.getElementById('stopBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const chatList = document.getElementById('chatList');
-const modelInfo = document.getElementById('modelInfo');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadConfig();
     loadChats();
-    updateModelInfo();
     setupEventListeners();
     autoResizeTextarea();
 });
@@ -121,10 +119,6 @@ function autoResizeTextarea() {
     });
 }
 
-// Update model info
-function updateModelInfo() {
-    modelInfo.innerHTML = `<i class="bi bi-cpu"></i> Modèle: ${config.model}`;
-}
 
 // Test connection to Ollama
 async function testConnection() {

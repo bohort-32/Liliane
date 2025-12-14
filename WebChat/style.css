@@ -88,7 +88,7 @@ body {
 }
 
 .suggestion-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     padding: 20px;
     border-radius: 12px;
@@ -118,19 +118,19 @@ body {
 }
 
 .suggestion-card:nth-child(4n+1) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--secondary-color) 0%);
 }
 
 .suggestion-card:nth-child(4n+2) {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, var(--secondary-color) 0%);
 }
 
 .suggestion-card:nth-child(4n+3) {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, var(--secondary-color) 0%);
 }
 
 .suggestion-card:nth-child(4n+4) {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    background: linear-gradient(135deg, #43e97b 0%);
 }
 
 /* Messages Area */
@@ -173,11 +173,11 @@ body {
 }
 
 .user-avatar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%);
 }
 
 .assistant-avatar {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--secondary-color);
 }
 
 .message-name {
@@ -300,7 +300,7 @@ body {
 }
 
 #messageInput:focus {
-    border-color: var(--primary-color);
+    border-color: var(--secondary-color);
     box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.1);
 }
 
@@ -361,4 +361,8 @@ body {
 .spinner-border-sm {
     width: 1rem;
     height: 1rem;
+}
+
+.bg-primary {
+    background-color: var(--primary-color)!important;
 }
