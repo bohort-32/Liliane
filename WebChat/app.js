@@ -397,9 +397,9 @@ function appendMessage(role, content, isStreaming = false) {
     messageDiv.innerHTML = `
         <div class="message-header">
             <div class="message-avatar ${role}-avatar">
-                ${role === 'user' ? '<i class="bi bi-person-fill"></i>' : '<i class="bi bi-robot"></i>'}
+                ${role === 'user' ? '<i class="bi bi-person-fill"></i>' : '<i class="bi bi-backpack3-fill"></i>'}
             </div>
-            <span class="message-name">${role === 'user' ? 'Vous' : 'Assistant BTS SIO'}</span>
+            <span class="message-name">${role === 'user' ? 'Vous' : 'Lil-IA-ne'}</span>
             <span class="message-time">${time}</span>
         </div>
         <div class="message-content">
@@ -409,9 +409,6 @@ function appendMessage(role, content, isStreaming = false) {
             <div class="message-actions">
                 <button onclick="copyMessage(this)" title="Copier">
                     <i class="bi bi-clipboard"></i>
-                </button>
-                <button onclick="regenerateMessage(this)" title="Régénérer">
-                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
         ` : ''}
@@ -438,9 +435,9 @@ function showTypingIndicator() {
     indicator.innerHTML = `
         <div class="message-header">
             <div class="message-avatar assistant-avatar">
-                <i class="bi bi-robot"></i>
+                <i class="bi bi-backpack3-fill"></i>
             </div>
-            <span class="message-name">Assistant BTS SIO</span>
+            <span class="message-name">Lil-IA-ne</span>
         </div>
         <div class="typing-indicator">
             <div class="typing-dot"></div>
