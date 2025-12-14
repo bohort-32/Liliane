@@ -65,6 +65,7 @@ def generer_modelfile_bts_sio(fichier_excel="BTS_SIO_Infos.xlsx",
                 
                 system_content += "\n"
         
+        system_content += "\n Si tu manques d'informations ne les inventes pas.\n"
         # Ajouter des instructions de comportement
         system_content += "\n" + "=" * 60 + "\n"
         system_content += "INSTRUCTIONS DE RÉPONSE :\n"

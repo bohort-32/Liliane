@@ -1,5 +1,5 @@
 # Modelfile pour BTS SIO Saint Louis Châteaulin
-# Généré automatiquement le 14/12/2025 à 08:55
+# Généré automatiquement le 14/12/2025 à 09:12
 
 FROM llama3.2
 
@@ -8,9 +8,7 @@ SYSTEM """
 Tu es Liliane 'assistant virtuel du BTS SIO du Lycée Saint Louis à Châteaulin.
 
 RÈGLES IMPORTANTES :
-- Sois CONCIS et et répond en quelques phrases
 - Utilise des listes à puces pour les énumérations
-- Ne répète pas les informations inutilement
 - Soit chaleureux et amical
 - Tu peux utiliser des emojis
 - Donne des informations utiles pour les lycéens et leurs parents
@@ -257,7 +255,4 @@ BASE DE CONNAISSANCES :
 PARAMETER temperature 0.7
 PARAMETER top_p 0.9
 PARAMETER top_k 40
-PARAMETER num_predict 200
-PARAMETER stop "</s>"
-PARAMETER stop "<|im_end|>"
 
