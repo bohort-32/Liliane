@@ -1,5 +1,5 @@
 # Modelfile pour BTS SIO Saint Louis Châteaulin
-# Généré automatiquement le 14/12/2025 à 09:12
+# Généré automatiquement le 14/12/2025 à 11:54
 
 FROM llama3.2
 
@@ -87,7 +87,10 @@ BASE DE CONNAISSANCES :
 - Vœux Parcoursup : de mi-janvier à mi-mars - Réponses : à partir de fin mai
 
 - Frais de scolarité
-- Formation gratuite (établissement public) - Seuls les manuels et équipements personnels sont à prévoir (environ 200€)
+- 900 euros à l'année
+
+- Lien parcoursup
+- https://dossierappel.parcoursup.fr/Candidats/public/fiches/afficherFicheFormation?g_ta_cod=3810&typeBac=0&originePc=0
 
 
 ## STAGES
@@ -103,9 +106,7 @@ BASE DE CONNAISSANCES :
 
 - Le lycée aide les étudiants à trouver leurs stages grâce à un réseau d'entreprises partenaires.
 
-- Les stages donnent lieu à un rapport écrit et une soutenance orale qui comptent pour l'obtention du diplôme.
-
-- De nombreux étudiants sont embauchés par leur entreprise de stage après l'obtention du BTS.
+- Les stages donnent lieu à une soutenance orale.
 
 
 ## DÉBOUCHÉS
@@ -137,19 +138,11 @@ BASE DE CONNAISSANCES :
 ## ÉQUIPEMENTS
 - Le lycée dispose de 3 salles informatiques dédiées au BTS SIO équipées de 25 postes chacune.
 
-- Matériel : PC dernière génération avec double écran, serveurs physiques et virtuels.
+- Matériel : Serveurs physiques et virtuels.
 
 - Salle réseau avec équipements Cisco : routeurs, switches, pare-feu pour les travaux pratiques SISR.
 
-- Laboratoire de développement avec outils professionnels : Visual Studio, IntelliJ, Android Studio, bases de données.
-
-- Accès aux plateformes cloud : AWS Academy, Microsoft Azure pour étudiants, Google Cloud Platform.
-
-- Connexion internet fibre optique 1 Gbps pour tous les postes.
-
-- Prêt possible d'ordinateurs portables pour les étudiants qui en ont besoin.
-
-- Logiciels professionnels : VMware, Packet Tracer, Docker, Git, suite JetBrains complète.
+- Laboratoire de développement avec outils professionnels : Visual Studio code, php my admin, Android Studio, bases de données.
 
 - Espace de coworking pour les projets de groupe et le travail collaboratif.
 
@@ -193,25 +186,11 @@ BASE DE CONNAISSANCES :
 
 
 ## VIE ÉTUDIANTE
-- Association BDE SIO : organisation d'événements, soirées étudiantes, tournois de e-sport.
+- Association BDE SIO : organisation d'événements, soirées étudiantes
 
-- Participation au Hackathon régional organisé chaque année en avril.
+- Organisation d'une journée d'intégration
 
-- Clubs et activités : club développement web, club cybersécurité, club gaming.
-
-- Self-service et cafétéria sur place avec formules adaptées aux budgets étudiants.
-
-- Résidence étudiante à proximité immédiate (200 mètres du lycée).
-
-- Bourses sur critères sociaux du CROUS disponibles.
-
-- Accès à la bibliothèque universitaire et aux ressources numériques.
-
-- Partenariats avec des entreprises pour des conférences et des job dating.
-
-- Possibilité de participer à des certifications : Cisco CCNA, Microsoft, CompTIA.
-
-- Sorties pédagogiques : salons professionnels (Vivatech, Paris), visites d'entreprises innovantes.
+- Le secret santa de noël
 
 
 ## CONTACT
@@ -219,34 +198,31 @@ BASE DE CONNAISSANCES :
 - Lycée Saint Louis
 
 - Adresse
-- 2 Rue de l'Ange Gardien
+- 63 Grand rue - 29150 Châteaulin
 
 - Ville
 - 29150 Châteaulin
 
 - Téléphone
-- 02 98 86 01 02
+- 02 98 86 59 00
 
 - Email général
-- contact@lycee-saint-louis-chateaulin.fr
-
-- Email BTS SIO
-- bts.sio@lycee-saint-louis-chateaulin.fr
+- saint-louis29@saint-louis29.net
 
 - Site web
-- www.lycee-saint-louis-chateaulin.fr
+- https://www.saint-louis29.net/
 
 - Horaires d'ouverture
-- Lundi au vendredi : 8h00 - 18h00
+- Lundi au vendredi : 8h00 - 16h00
 
 - Responsable BTS SIO
-- M. Dupont - Coordinateur BTS SIO
+- M. QUIMERCH Gwenolé
 
 - Journées Portes Ouvertes
 - Samedi 3 février 2024 (9h-16h) et Samedi 16 mars 2024 (9h-13h)
 
 - Réseaux sociaux
-- Facebook : @LyceeSaintLouisChateaulin | Instagram : @btssio.saintlouis | LinkedIn : BTS SIO Saint Louis
+- LinkedIn : BTS SIO Saint Louis
 
 
 """
