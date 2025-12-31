@@ -314,3 +314,167 @@ html, body {
         max-width: 120px;
     }
 }
+
+
+/* Styles pour le contenu Markdown */
+.message-content {
+    word-wrap: break-word;
+    line-height: 1.6;
+}
+
+/* Titres dans le markdown */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+.message-content h1 { font-size: 1.5em; }
+.message-content h2 { font-size: 1.3em; }
+.message-content h3 { font-size: 1.1em; }
+.message-content h4 { font-size: 1em; }
+
+/* Paragraphes */
+.message-content p {
+    margin-bottom: 0.8em;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Listes */
+.message-content ul,
+.message-content ol {
+    margin-left: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+.message-content li {
+    margin-bottom: 0.3em;
+}
+
+/* Code inline */
+.message-content code {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.message.user .message-content code {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Blocs de code */
+.message-content pre {
+    background-color: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 12px;
+    overflow-x: auto;
+    margin: 0.8em 0;
+}
+
+.message-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85em;
+    line-height: 1.5;
+    display: block;
+}
+
+.message.user .message-content pre {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Citations */
+.message-content blockquote {
+    border-left: 4px solid var(--saint-louis-orange);
+    padding-left: 1em;
+    margin: 0.8em 0;
+    color: #666;
+    font-style: italic;
+}
+
+.message.user .message-content blockquote {
+    border-left-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Liens */
+.message-content a {
+    color: var(--saint-louis-blue);
+    text-decoration: underline;
+    word-break: break-all;
+}
+
+.message.user .message-content a {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Tableau */
+.message-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.8em 0;
+    font-size: 0.9em;
+}
+
+.message-content table th,
+.message-content table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.message-content table th {
+    background-color: var(--saint-louis-blue);
+    color: white;
+    font-weight: 600;
+}
+
+.message-content table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Ligne horizontale */
+.message-content hr {
+    border: none;
+    border-top: 2px solid #e1e4e8;
+    margin: 1em 0;
+}
+
+/* Gras et italique */
+.message-content strong {
+    font-weight: 600;
+}
+
+.message-content em {
+    font-style: italic;
+}
+
+/* Images dans le markdown */
+.message-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 0.5em 0;
+}
+
+/* Badge pour le langage de code */
+.code-header {
+    background-color: #e1e4e8;
+    padding: 4px 8px;
+    border-radius: 4px 4px 0 0;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #586069;
+    display: inline-block;
+}
