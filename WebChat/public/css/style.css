@@ -47,76 +47,11 @@ html, body {
     padding: 0.5rem;
 }
 
-.conversation-item {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.conversation-item:hover {
-    background: rgba(255,255,255,0.1);
-    transform: translateX(5px);
-}
-
-.conversation-item.active {
-    background: var(--saint-louis-orange);
-    border-color: var(--saint-louis-orange);
-}
-
-.conversation-title {
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.conversation-meta {
-    font-size: 11px;
-    color: rgba(255,255,255,0.6);
-}
-
-.conversation-item.active .conversation-meta {
-    color: rgba(255,255,255,0.9);
-}
-
-.delete-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: white;
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0;
-    transition: all 0.3s;
-}
-
-.conversation-item:hover .delete-btn {
-    opacity: 1;
-}
-
-.delete-btn:hover {
-    background: #dc3545;
-}
-
 .sidebar-footer {
-    padding: 1rem;
+    padding: 1.5rem;
     text-align: center;
     border-top: 1px solid rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.7);
+    margin-top: auto;
 }
 
 /* Main Content */
@@ -269,19 +204,6 @@ html, body {
 }
 
 /* Scrollbar */
-.conversations-list::-webkit-scrollbar,
-.chat-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.conversations-list::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-}
-
-.conversations-list::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
-    border-radius: 4px;
-}
 
 .chat-container::-webkit-scrollbar-track {
     background: #f1f1f1;

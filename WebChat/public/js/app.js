@@ -6,26 +6,17 @@ const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 const loading = document.getElementById('loading');
-const conversationsList = document.getElementById('conversationsList');
 const newChatBtn = document.getElementById('newChatBtn');
 const chatTitle = document.getElementById('chatTitle');
 const sessionInfo = document.getElementById('sessionInfo');
 
-// Fonction pour formater la date
-function formatDate(isoDate) {
-    const date = new Date(isoDate);
-    const now = new Date();
-    const diff = now - date;
-
-    if (diff < 60000) return 'À l\'instant';
-    if (diff < 3600000) return `Il y a ${Math.floor(diff / 60000)} min`;
-    if (diff < 86400000) return `Il y a ${Math.floor(diff / 3600000)}h`;
-
-    return date.toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'short'
-    });
-}
+// Configuration de Marked.js
+marked.setOptions({
+    breaks: true,
+    gfm: true,
+    headerIds: false,
+    mangle: false
+});
 
 // Fonction pour formater l'heure
 function formatTime(isoDate) {
@@ -35,61 +26,16 @@ function formatTime(isoDate) {
     });
 }
 
-// Charger la liste des conversations
-async function loadConversations() {
-    try {
-        const response = await fetch('/api/conversations');
-        const data = await response.json();
-
-        if (data.success) {
-            displayConversations(data.conversations);
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des conversations:', error);
-        showAlert('Erreur lors du chargement des conversations', 'danger');
-    }
-}
-
-// Afficher la liste des conversations
-function displayConversations(conversations) {
-    conversationsList.innerHTML = '';
-
-    if (conversations.length === 0) {
-        conversationsList.innerHTML = `
-            <div class="text-center text-white-50 p-3">
-                <i class="bi bi-inbox"></i>
-                <p class="small mb-0 mt-2">Aucune conversation</p>
-            </div>
-        `;
-        return;
-    }
-
-    conversations.forEach(conv => {
-        const item = document.createElement('div');
-        item.className = 'conversation-item';
-        if (conv.id === currentSessionId) {
-            item.classList.add('active');
-        }
-
-        item.innerHTML = `
-            <div class="conversation-title">${conv.title}</div>
-            <div class="conversation-meta">
-                <i class="bi bi-clock"></i> ${formatDate(conv.createdAt)} • 
-                <i class="bi bi-chat"></i> ${conv.messageCount}
-            </div>
-            <button class="delete-btn" onclick="deleteConversation('${conv.id}', event)" title="Supprimer">
-                <i class="bi bi-x"></i>
-            </button>
-        `;
-
-        item.onclick = (e) => {
-            if (!e.target.closest('.delete-btn')) {
-                loadConversation(conv.id);
-            }
-        };
-
-        conversationsList.appendChild(item);
-    });
+// Fonction pour échapper le HTML
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 // Créer une nouvelle conversation
@@ -104,125 +50,100 @@ async function createNewConversation() {
 
         if (data.success) {
             currentSessionId = data.sessionId;
-            chatContainer.innerHTML = '';
-            addMessage('Bonjour ! Je suis votre assistant pédagogique du Saint Louis Collège. Comment puis-je vous aider dans vos apprentissages aujourd\'hui ? 📚', false);
-
+            
+            // Réinitialiser l'interface
+            chatContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-chat-dots empty-icon"></i>
+                    <h4 class="mt-3">Nouvelle conversation</h4>
+                    <p class="text-muted">Posez votre première question pour commencer</p>
+                </div>
+            `;
+            
+            chatTitle.textContent = 'Nouvelle conversation';
+            sessionInfo.textContent = `Session: ${currentSessionId.substring(0, 8)}...`;
+            
+            // Activer l'input
             userInput.disabled = false;
             sendBtn.disabled = false;
             userInput.focus();
-
-            chatTitle.textContent = 'Nouvelle conversation';
-            sessionInfo.textContent = 'Conversation active';
-
-            await loadConversations();
+            
+            showAlert('Nouvelle conversation créée', 'success');
         }
     } catch (error) {
-        console.error('Erreur lors de la création de la conversation:', error);
+        console.error('Erreur:', error);
         showAlert('Erreur lors de la création de la conversation', 'danger');
     }
 }
 
-// Charger une conversation existante
-async function loadConversation(sessionId) {
-    try {
-        const response = await fetch(`/api/conversations/${sessionId}`);
-        const data = await response.json();
+// Envoyer un message
+async function sendMessage() {
+    const message = userInput.value.trim();
 
-        if (data.success) {
-            currentSessionId = sessionId;
-            chatContainer.innerHTML = '';
+    if (!message) return;
 
-            chatTitle.textContent = data.conversation.title;
-            sessionInfo.textContent = `${data.conversation.messages.length} messages • ${formatDate(data.conversation.createdAt)}`;
-
-            if (data.conversation.messages.length === 0) {
-                addMessage('Bonjour ! Je suis votre assistant pédagogique du Saint Louis Collège. Comment puis-je vous aider dans vos apprentissages aujourd\'hui ? 📚', false);
-            } else {
-                data.conversation.messages.forEach(msg => {
-                    addMessage(msg.content, msg.role === 'user', msg.timestamp, false);
-                });
-            }
-
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
-
-            // Mettre à jour l'interface
-            document.querySelectorAll('.conversation-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.currentTarget?.classList.add('active');
-
-            await loadConversations();
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement de la conversation:', error);
-        showAlert('Erreur lors du chargement de la conversation', 'danger');
-    }
-}
-
-// Supprimer une conversation
-async function deleteConversation(sessionId, event) {
-    event.stopPropagation();
-
-    if (!confirm('Voulez-vous vraiment supprimer cette conversation ?')) {
+    if (!currentSessionId) {
+        showAlert('Veuillez créer une nouvelle conversation', 'warning');
         return;
     }
 
+    // Désactiver l'input pendant l'envoi
+    userInput.disabled = true;
+    sendBtn.disabled = true;
+
+    // Supprimer l'empty state si présent
+    const emptyState = chatContainer.querySelector('.empty-state');
+    if (emptyState) {
+        emptyState.remove();
+    }
+
+    // Afficher le message de l'utilisateur
+    addMessage(message, true);
+
+    // Vider l'input
+    userInput.value = '';
+
+    // Afficher le loading
+    loading.classList.remove('d-none');
+
     try {
-        const response = await fetch(`/api/conversations/${sessionId}`, {
-            method: 'DELETE'
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                sessionId: currentSessionId
+            })
         });
 
         const data = await response.json();
 
-        if (data.success) {
-            if (currentSessionId === sessionId) {
-                currentSessionId = null;
-                chatContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="bi bi-chat-dots empty-icon"></i>
-                        <h4 class="mt-3">Conversation supprimée</h4>
-                        <p class="text-muted">Sélectionnez ou créez une nouvelle conversation</p>
-                    </div>
-                `;
-                userInput.disabled = true;
-                sendBtn.disabled = true;
-                chatTitle.textContent = 'Assistant Pédagogique';
-                sessionInfo.textContent = 'Sélectionnez ou créez une conversation';
-            }
+        // Masquer le loading
+        loading.classList.add('d-none');
 
-            await loadConversations();
-            showAlert('Conversation supprimée avec succès', 'success');
+        if (data.success) {
+            // Afficher la réponse de l'assistant
+            addMessage(data.response, false);
+            
+            // Mettre à jour le titre si c'est le premier message
+            if (data.isFirstMessage && data.title) {
+                chatTitle.textContent = data.title;
+            }
+        } else {
+            showAlert(data.error || 'Erreur lors de l\'envoi', 'danger');
         }
     } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
-        showAlert('Erreur lors de la suppression', 'danger');
+        loading.classList.add('d-none');
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion au serveur', 'danger');
+    } finally {
+        // Réactiver l'input
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
     }
 }
 
-// Fonction pour ajouter un message
-// Configuration de Marked.js
-marked.setOptions({
-    breaks: true, // Convertir les sauts de ligne en <br>
-    gfm: true, // GitHub Flavored Markdown
-    headerIds: false,
-    mangle: false
-});
-
-// Fonction pour échapper le HTML (sécurité)
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-// Fonction pour ajouter un message avec support Markdown
 // Fonction pour ajouter un message avec support Markdown
 function addMessage(content, isUser, timestamp = null, scroll = true) {
     const messageDiv = document.createElement('div');
@@ -255,7 +176,7 @@ function addMessage(content, isUser, timestamp = null, scroll = true) {
     
     chatContainer.appendChild(messageDiv);
     
-    // Appliquer la coloration syntaxique aux blocs de code
+    // Appliquer la coloration syntaxique
     if (!isUser && typeof hljs !== 'undefined') {
         messageDiv.querySelectorAll('pre code').forEach((block) => {
             hljs.highlightElement(block);
@@ -267,57 +188,7 @@ function addMessage(content, isUser, timestamp = null, scroll = true) {
     }
 }
 
-
-// Fonction pour envoyer un message
-async function sendMessage() {
-    const message = userInput.value.trim();
-
-    if (!message || !currentSessionId) return;
-
-    // Afficher le message de l'utilisateur
-    addMessage(message, true);
-    userInput.value = '';
-
-    // Désactiver l'input et le bouton
-    sendBtn.disabled = true;
-    userInput.disabled = true;
-    loading.classList.remove('d-none');
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message,
-                sessionId: currentSessionId
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            addMessage(data.response, false);
-            await loadConversations();
-        } else {
-            addMessage('❌ Erreur: ' + (data.error || 'Erreur inconnue'), false);
-            showAlert(data.error || 'Erreur lors de l\'envoi du message', 'danger');
-        }
-
-    } catch (error) {
-        addMessage('❌ Erreur de connexion au serveur', false);
-        console.error('Erreur:', error);
-        showAlert('Erreur de connexion au serveur', 'danger');
-    } finally {
-        sendBtn.disabled = false;
-        userInput.disabled = false;
-        loading.classList.add('d-none');
-        userInput.focus();
-    }
-}
-
-// Afficher une alerte (toast)
+// Afficher une alerte
 function showAlert(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
@@ -343,13 +214,5 @@ userInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Charger les conversations au démarrage
-loadConversations();
-
-// Gestion du responsive (toggle sidebar sur mobile)
-if (window.innerWidth < 768) {
-    const sidebar = document.querySelector('.sidebar');
-    newChatBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('show');
-    });
-}
+// Message de bienvenue au chargement
+console.log('✅ Assistant IA - Saint Louis Collège chargé');
