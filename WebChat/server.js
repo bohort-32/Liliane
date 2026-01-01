@@ -65,16 +65,34 @@ function generateSessionId() {
 }
 
 
-// Sauvegarde des conversations dans un fichier
+// Sauvegarde des conversations dans un fichier JSON
 function saveConversationToFile(sessionId, message, is_user) {
   const logDir = path.join(__dirname, 'logs');
-  const logFilePath = path.join(logDir, `${sessionId}.txt`);
-  const role = is_user ? 'User' : 'Assistant';
-  const logEntry = `[${new Date().toISOString()}] ${role}: ${message}\n`;
+  const logFilePath = path.join(logDir, `${sessionId}.json`);
+  
+  const newEntry = {
+    timestamp: new Date().toISOString(),
+    role: is_user ? 'user' : 'assistant',
+    message: message,
+    messageLength: message.length
+  };
+
   fs.mkdir(logDir, { recursive: true })
-    .then(() => fs.appendFile(logFilePath, logEntry))
+    .then(() => fs.readFile(logFilePath, 'utf8').catch(() => '{"conversation": []}'))
+    .then(data => {
+      const conversationData = JSON.parse(data);
+      conversationData.conversation.push(newEntry);
+      
+      // Ajout de métadonnées utiles pour l'analyse
+      conversationData.sessionId = sessionId;
+      conversationData.lastUpdate = new Date().toISOString();
+      conversationData.messageCount = conversationData.conversation.length;
+      
+      return fs.writeFile(logFilePath, JSON.stringify(conversationData, null, 2));
+    })
     .catch(err => console.error('Erreur lors de la sauvegarde de la conversation:', err));
 }
+
 
 // Route pour créer une nouvelle conversation
 app.post('/api/conversations/new', (req, res) => {
