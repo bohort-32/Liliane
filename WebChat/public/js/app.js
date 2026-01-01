@@ -49,42 +49,42 @@
         }
     }
 
-// Ajouter ou mettre à jour une conversation
-function updateConversation(sessionId, title, messages) {
-    // Vérification de sécurité
-    if (!messages || !Array.isArray(messages)) {
-        console.warn('Messages invalides pour la conversation', sessionId);
-        return;
+    // Ajouter ou mettre à jour une conversation
+    function updateConversation(sessionId, title, messages) {
+        // Vérification de sécurité
+        if (!messages || !Array.isArray(messages)) {
+            console.warn('Messages invalides pour la conversation', sessionId);
+            return;
+        }
+
+        const index = conversations.findIndex(c => c.id === sessionId);
+
+        const lastMessageContent = messages.length > 0 && messages[messages.length - 1].content
+            ? messages[messages.length - 1].content.substring(0, 50)
+            : '';
+
+        const conversation = {
+            id: sessionId,
+            title: title || 'Nouvelle conversation',
+            lastMessage: lastMessageContent,
+            timestamp: new Date().toISOString(),
+            messages: messages
+        };
+
+        if (index !== -1) {
+            conversations[index] = conversation;
+        } else {
+            conversations.unshift(conversation);
+        }
+
+        // Limiter à 50 conversations max
+        if (conversations.length > 50) {
+            conversations = conversations.slice(0, 50);
+        }
+
+        saveConversations();
+        renderConversationsList();
     }
-
-    const index = conversations.findIndex(c => c.id === sessionId);
-    
-    const lastMessageContent = messages.length > 0 && messages[messages.length - 1].content 
-        ? messages[messages.length - 1].content.substring(0, 50)
-        : '';
-
-    const conversation = {
-        id: sessionId,
-        title: title || 'Nouvelle conversation',
-        lastMessage: lastMessageContent,
-        timestamp: new Date().toISOString(),
-        messages: messages
-    };
-
-    if (index !== -1) {
-        conversations[index] = conversation;
-    } else {
-        conversations.unshift(conversation);
-    }
-
-    // Limiter à 50 conversations max
-    if (conversations.length > 50) {
-        conversations = conversations.slice(0, 50);
-    }
-
-    saveConversations();
-    renderConversationsList();
-}
 
 
     // Supprimer une conversation
@@ -366,14 +366,85 @@ function updateConversation(sessionId, title, messages) {
                 mangle: false
             });
 
-            return marked.parse(text);
+            // Parser le markdown
+            let html = marked.parse(text);
+
+            // Transformer les chemins d'images relatifs en chemins absolus
+            html = html.replace(
+                /<img\s+([^>]*?)src=["'](?!http)([^"']+)["']/gi,
+                (match, attrs, src) => {
+                    // Si le chemin ne commence pas par /images/, l'ajouter
+                    const imagePath = src.startsWith('/images/')
+                        ? src
+                        : `/images/${src.replace(/^\/+/, '')}`;
+
+                    return `<img ${attrs}src="${imagePath}" class="chat-image" loading="lazy" onerror="this.onerror=null; this.src='/images/placeholder.png'; this.alt='Image non disponible';"`;
+                }
+            );
+
+            return html;
         }
 
-        return text
+        // Fallback si marked.js n'est pas chargé
+        let formatted = text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/\n/g, '<br>');
+
+        // Détecter les images markdown : ![alt](url)
+        formatted = formatted.replace(
+            /!\[([^\]]*)\]\(([^)]+)\)/g,
+            (match, alt, src) => {
+                const imagePath = src.startsWith('/images/')
+                    ? src
+                    : `/images/${src.replace(/^\/+/, '')}`;
+
+                return `<img src="${imagePath}" alt="${alt || 'Image'}" class="chat-image" loading="lazy" onerror="this.onerror=null; this.src='/images/placeholder.png'; this.alt='Image non disponible';">`;
+            }
+        );
+
+        return formatted;
     }
+
+    // ========================================
+    // GESTION DES IMAGES
+    // ========================================
+
+    function setupImageModal() {
+        // Créer le modal s'il n'existe pas
+        if (!document.getElementById('imageModal')) {
+            const modal = document.createElement('div');
+            modal.id = 'imageModal';
+            modal.className = 'image-modal';
+            modal.innerHTML = `
+            <span class="close-modal">&times;</span>
+            <img id="modalImage" src="" alt="Image agrandie">
+        `;
+            document.body.appendChild(modal);
+
+            // Fermer le modal au clic
+            modal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+    }
+
+    function attachImageListeners() {
+        document.querySelectorAll('.chat-image').forEach(img => {
+            img.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+
+                if (modal && modalImg) {
+                    modal.style.display = 'block';
+                    modalImg.src = this.src;
+                    modalImg.alt = this.alt;
+                }
+            });
+        });
+    }
+
 
     function escapeHtml(text) {
         const div = document.createElement('div');
@@ -434,6 +505,8 @@ function updateConversation(sessionId, title, messages) {
 
             if (data.success) {
                 addMessage(data.response, false);
+
+                attachImageListeners();
 
                 // Récupérer l'historique complet
                 try {
@@ -515,6 +588,8 @@ function updateConversation(sessionId, title, messages) {
         if (typeof hljs === 'undefined') {
             console.warn('⚠️ Highlight.js non chargé');
         }
+
+        setupImageModal();
 
         loadConversations();
         await createNewConversation();

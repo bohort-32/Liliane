@@ -667,3 +667,58 @@ html, body {
 .conversations-list::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+
+/* Styles pour les images dans le chat */
+.chat-image {
+    max-width: 100%;
+    max-height: 400px;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-image:hover {
+    transform: scale(1.02);
+}
+
+/* Modal pour afficher l'image en grand */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    cursor: zoom-out;
+}
+
+.image-modal img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 90%;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.image-modal .close-modal {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10001;
+}
+
+.image-modal .close-modal:hover {
+    color: #f44336;
+}
