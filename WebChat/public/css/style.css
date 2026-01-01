@@ -494,3 +494,58 @@ html, body {
 .empty-state {
     display: none;
 }
+
+/* Zone de chargement */
+#loading {
+    padding: 1rem;
+    text-align: center;
+}
+
+#loading .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* Input area */
+.chat-input {
+    padding: 1rem 2rem 1.5rem;
+    background: white;
+    border-top: 1px solid #dee2e6;
+}
+
+.chat-input textarea {
+    resize: none;
+    overflow-y: auto;
+    max-height: 150px;
+    border-radius: 20px;
+    padding: 12px 20px;
+    border: 2px solid #dee2e6;
+}
+
+.chat-input textarea:focus {
+    border-color: var(--saint-louis-blue);
+    box-shadow: 0 0 0 0.2rem rgba(44, 74, 124, 0.15);
+}
+
+.chat-input .btn-primary {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+/* Header du chat */
+.chat-header {
+    background: white;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.chat-header h5 {
+    color: var(--saint-louis-blue);
+    font-weight: 600;
+}

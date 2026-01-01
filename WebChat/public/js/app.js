@@ -29,32 +29,52 @@
     // Afficher l'écran de bienvenue
     function displayWelcomeScreen() {
         const welcomeHTML = `
-            <div class="welcome-screen">
-                <div class="welcome-logo">
-                    <img src="images/logo.png" alt="Saint Louis Collège" class="welcome-logo-img">
+            <div class="welcome-section">
+                <div class="text-center mb-4">
+                    <i class="bi bi-mortarboard-fill" style="font-size: 4rem; color: var(--saint-louis-orange);"></i>
+                    <h3 class="mt-3">Bienvenue sur l'assistant BTS SIO</h3>
+                    <p class="text-muted">Découvrez notre formation en Services Informatiques aux Organisations</p>
                 </div>
-                <h2 class="welcome-title">Bienvenue sur l'Assistant IA</h2>
-                <p class="welcome-subtitle">Découvrez le BTS SIO au Lycée Saint Louis</p>
-                
-                <div class="suggestions-grid">
-                    <div class="suggestion-card" data-question="Qu'est-ce que le BTS SIO ?">
-                        <div class="suggestion-icon">📚</div>
-                        <div class="suggestion-text">Qu'est-ce que le BTS SIO ?</div>
-                    </div>
-                    
-                    <div class="suggestion-card" data-question="Quelles sont les différences entre SISR et SLAM ?">
-                        <div class="suggestion-icon">💻</div>
-                        <div class="suggestion-text">Différences SISR et SLAM ?</div>
-                    </div>
-                    
-                    <div class="suggestion-card" data-question="Quels sont les débouchés professionnels ?">
-                        <div class="suggestion-icon">🎯</div>
-                        <div class="suggestion-text">Débouchés professionnels ?</div>
-                    </div>
-                    
-                    <div class="suggestion-card" data-question="Comment s'inscrire au BTS SIO ?">
-                        <div class="suggestion-icon">📝</div>
-                        <div class="suggestion-text">Procédure d'inscription ?</div>
+
+                <div class="suggestions-container">
+                    <h6 class="text-muted mb-3">Questions fréquentes :</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Qu'est-ce que le BTS SIO ?">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <div>
+                                    <strong>Présentation générale</strong>
+                                    <p class="mb-0 small text-muted">Qu'est-ce que le BTS SIO ?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Quelles sont les deux options du BTS SIO ?">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <div>
+                                    <strong>Les options SISR et SLAM</strong>
+                                    <p class="mb-0 small text-muted">Quelles sont les différences ?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Quels sont les débouchés professionnels ?">
+                                <i class="bi bi-briefcase-fill"></i>
+                                <div>
+                                    <strong>Débouchés professionnels</strong>
+                                    <p class="mb-0 small text-muted">Quelles carrières après le BTS ?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Comment s'inscrire au BTS SIO ?">
+                                <i class="bi bi-pencil-square"></i>
+                                <div>
+                                    <strong>Procédure d'inscription</strong>
+                                    <p class="mb-0 small text-muted">Comment postuler ?</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,10 +89,7 @@
         const suggestionCards = document.querySelectorAll('.suggestion-card');
         
         suggestionCards.forEach(card => {
-            const newCard = card.cloneNode(true);
-            card.parentNode.replaceChild(newCard, card);
-            
-            newCard.addEventListener('click', function() {
+            card.addEventListener('click', function() {
                 const question = this.dataset.question;
                 if (question) {
                     userInput.value = question;
@@ -84,42 +101,72 @@
 
     // Ajouter un message dans le chat
     function addMessage(content, isUser = false) {
+        // Supprimer l'écran de bienvenue au premier message
+        if (isFirstInteraction) {
+            chatContainer.innerHTML = '';
+            isFirstInteraction = false;
+        }
+
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+        messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+        
+        const timestamp = new Date().toLocaleTimeString('fr-FR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
         
         if (isUser) {
             messageDiv.innerHTML = `
-                <div class="message-content">
-                    <div class="message-text">${escapeHtml(content)}</div>
-                </div>
                 <div class="message-avatar">
-                    <i class="fas fa-user"></i>
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="message-bubble">
+                    <div class="message-content">${escapeHtml(content)}</div>
+                    <div class="message-time">${timestamp}</div>
                 </div>
             `;
         } else {
             messageDiv.innerHTML = `
                 <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
+                    <i class="bi bi-robot"></i>
                 </div>
-                <div class="message-content">
-                    <div class="message-text">${formatMessage(content)}</div>
+                <div class="message-bubble">
+                    <div class="message-content">${formatMessage(content)}</div>
+                    <div class="message-time">${timestamp}</div>
                 </div>
             `;
         }
         
         chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Scroll automatique
+        setTimeout(() => {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
     }
 
-    // Formater le message
+    // Formater le message avec Marked.js
     function formatMessage(text) {
+        if (typeof marked !== 'undefined') {
+            // Configuration de Marked
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false
+            });
+            
+            return marked.parse(text);
+        }
+        
+        // Fallback si Marked n'est pas chargé
         return text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/\n/g, '<br>');
     }
 
-    // Échapper le HTML
+    // Échapper le HTML pour éviter XSS
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -127,15 +174,17 @@
     }
 
     // Afficher une alerte
-    function showAlert(message, type = 'info') {
+    function showAlert(message, type = 'danger') {
         const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+        alertDiv.style.zIndex = '9999';
         alertDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         
-        document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.chat-card'));
+        document.body.appendChild(alertDiv);
         
         setTimeout(() => {
             alertDiv.remove();
@@ -154,51 +203,50 @@
                 headers: { 'Content-Type': 'application/json' }
             });
 
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+
             const data = await response.json();
 
             if (data.success) {
                 currentSessionId = data.sessionId;
                 isFirstInteraction = true;
-                
-                chatContainer.innerHTML = '';
                 displayWelcomeScreen();
-                
-                chatTitle.textContent = 'Découvrir le BTS SIO';
-                sessionInfo.textContent = 'Nouvelle conversation';
-                
+                chatTitle.textContent = 'Nouvelle conversation';
+                sessionInfo.textContent = `Session: ${currentSessionId.substring(0, 8)}...`;
                 userInput.value = '';
                 userInput.focus();
             } else {
-                showAlert(data.error || 'Erreur lors de la création', 'danger');
+                showAlert(data.error || 'Impossible de créer une conversation');
             }
         } catch (error) {
             console.error('Erreur:', error);
-            showAlert('Erreur de connexion au serveur', 'danger');
+            showAlert('Erreur de connexion au serveur');
         }
     }
 
     // Envoyer un message
     async function sendMessage() {
         const message = userInput.value.trim();
-
-        if (!message || isSending) {
+        
+        if (!message || isSending) return;
+        
+        if (!currentSessionId) {
+            showAlert('Veuillez créer une nouvelle conversation');
             return;
         }
 
         isSending = true;
-
-        if (isFirstInteraction) {
-            chatContainer.innerHTML = '';
-            isFirstInteraction = false;
-        }
-
-        addMessage(message, true);
-
-        userInput.value = '';
-        userInput.style.height = 'auto';
         userInput.disabled = true;
         sendBtn.disabled = true;
 
+        // Afficher le message utilisateur
+        addMessage(message, true);
+        userInput.value = '';
+        userInput.style.height = 'auto';
+
+        // Afficher le loader
         loading.classList.remove('d-none');
 
         try {
@@ -211,22 +259,33 @@
                 })
             });
 
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+
             const data = await response.json();
             loading.classList.add('d-none');
 
             if (data.success) {
                 addMessage(data.response, false);
                 
-                if (data.title) {
+                if (data.title && isFirstInteraction) {
                     chatTitle.textContent = data.title;
                 }
+
+                // Appliquer la coloration syntaxique si disponible
+                if (typeof hljs !== 'undefined') {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }
             } else {
-                showAlert(data.error || 'Erreur lors de l\'envoi', 'danger');
+                showAlert(data.error || 'Erreur lors de l\'envoi du message');
             }
         } catch (error) {
             loading.classList.add('d-none');
             console.error('Erreur:', error);
-            showAlert('Erreur de connexion au serveur', 'danger');
+            showAlert('Erreur de connexion au serveur');
         } finally {
             userInput.disabled = false;
             sendBtn.disabled = false;
@@ -240,18 +299,20 @@
     // ========================================
     userInput.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
     });
 
     // ========================================
     // EVENT LISTENERS
     // ========================================
     newChatBtn.addEventListener('click', createNewConversation);
+    
     sendBtn.addEventListener('click', (e) => {
         e.preventDefault();
         sendMessage();
     });
-    userInput.addEventListener('keypress', (e) => {
+    
+    userInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
@@ -263,7 +324,18 @@
     // ========================================
     document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Assistant IA - Saint Louis Collège chargé');
+        
+        // Vérifier que Marked.js est chargé
+        if (typeof marked === 'undefined') {
+            console.warn('⚠️ Marked.js non chargé');
+        }
+        
+        // Vérifier que Highlight.js est chargé
+        if (typeof hljs === 'undefined') {
+            console.warn('⚠️ Highlight.js non chargé');
+        }
+        
         await createNewConversation();
     });
 
-})(); // Fin de l'IIFE
+})();
