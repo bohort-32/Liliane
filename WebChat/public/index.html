@@ -35,61 +35,117 @@
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 main-content">
+            <!-- Zone de chat principale -->
+            <div class="col-md-9 col-lg-10 p-0 d-flex flex-column" style="height: 100vh;">
                 <!-- Header -->
-                <nav class="navbar navbar-light bg-white border-bottom">
-                    <div class="container-fluid">
-                        <span class="navbar-brand mb-0 h1">
-                            <i class="bi bi-robot text-primary"></i>
-                            <span class="ms-2" id="chatTitle">Assistant Pédagogique</span>
-                        </span>
-                        <div class="text-muted small" id="sessionInfo">
-                            Sélectionnez ou créez une conversation
-                        </div>
+                <div class="chat-header">
+                    <div>
+                        <h5 class="mb-0" id="chatTitle">Découvrir le BTS SIO</h5>
+                        <small class="text-muted" id="sessionInfo">Nouvelle conversation</small>
                     </div>
-                </nav>
+                </div>
 
-                <!-- Chat Container -->
+                <!-- Messages -->
                 <div class="chat-container" id="chatContainer">
-                    <div class="empty-state">
-                        <i class="bi bi-chat-dots empty-icon"></i>
-                        <h4 class="mt-3">Bienvenue sur l'Assistant IA</h4>
-                        <p class="text-muted">Saint Louis Collège - Lycée & BTS</p>
-                        <p class="mt-3">Sélectionnez une conversation existante ou créez-en une nouvelle pour commencer.
-                        </p>
-                    </div>
-                </div>
+                    <div class="welcome-section">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-mortarboard-fill"
+                                style="font-size: 4rem; color: var(--saint-louis-orange);"></i>
+                            <h3 class="mt-3">Bienvenue sur l'assistant BTS SIO</h3>
+                            <p class="text-muted">Découvrez notre formation en Services Informatiques aux Organisations
+                            </p>
+                        </div>
 
-                <!-- Loading -->
-                <div class="text-center py-3 d-none" id="loading">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Chargement...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Réflexion en cours...</p>
-                </div>
-
-                <!-- Input Area -->
-                <div class="input-area">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="userInput"
-                                        placeholder="Posez votre question..." disabled>
-                                    <button class="btn btn-primary" id="sendBtn" disabled>
-                                        <i class="bi bi-send-fill"></i>
-                                    </button>
+                        <div class="suggestions-container">
+                            <h6 class="text-muted mb-3">Questions fréquentes :</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="suggestion-card" data-question="Qu'est-ce que le BTS SIO ?">
+                                        <i class="bi bi-info-circle-fill"></i>
+                                        <div>
+                                            <strong>Présentation générale</strong>
+                                            <p class="mb-0 small text-muted">Qu'est-ce que le BTS SIO ?</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <small class="text-muted d-block mt-2">
-                                    <i class="bi bi-info-circle"></i>
-                                    L'assistant est configuré pour vous aider dans vos apprentissages.
-                                </small>
+                                <div class="col-md-6">
+                                    <div class="suggestion-card"
+                                        data-question="Quelles sont les deux options du BTS SIO ?">
+                                        <i class="bi bi-diagram-3-fill"></i>
+                                        <div>
+                                            <strong>Les options SISR et SLAM</strong>
+                                            <p class="mb-0 small text-muted">Quelles sont les différences ?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="suggestion-card"
+                                        data-question="Quels sont les débouchés professionnels après un BTS SIO ?">
+                                        <i class="bi bi-briefcase-fill"></i>
+                                        <div>
+                                            <strong>Débouchés</strong>
+                                            <p class="mb-0 small text-muted">Quels métiers après le BTS ?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="suggestion-card"
+                                        data-question="Quelles sont les conditions d'admission au BTS SIO ?">
+                                        <i class="bi bi-person-check-fill"></i>
+                                        <div>
+                                            <strong>Admission</strong>
+                                            <p class="mb-0 small text-muted">Comment intégrer la formation ?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="suggestion-card" data-question="Quel est le programme du BTS SIO ?">
+                                        <i class="bi bi-book-fill"></i>
+                                        <div>
+                                            <strong>Programme</strong>
+                                            <p class="mb-0 small text-muted">Quelles matières étudiées ?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="suggestion-card"
+                                        data-question="Comment se déroulent les stages en BTS SIO ?">
+                                        <i class="bi bi-building-fill"></i>
+                                        <div>
+                                            <strong>Stages</strong>
+                                            <p class="mb-0 small text-muted">Durée et organisation</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Zone de chargement -->
+                <div class="text-center py-3 d-none" id="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">L'assistant réfléchit...</p>
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input">
+                    <div class="input-group">
+                        <textarea class="form-control" id="userInput"
+                            placeholder="Posez votre question sur le BTS SIO..." rows="1"></textarea>
+                        <button class="btn btn-primary" id="sendBtn" type="button">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        <i class="bi bi-info-circle"></i> Appuyez sur Entrée pour envoyer, Shift+Entrée pour une
+                        nouvelle ligne
+                    </small>
+                </div>
             </div>
+
         </div>
     </div>
 

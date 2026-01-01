@@ -1,5 +1,6 @@
 // Variables globales
 let currentSessionId = null;
+let isFirstInteraction = true;
 
 // Éléments du DOM
 const chatContainer = document.getElementById('chatContainer');
@@ -50,18 +51,11 @@ async function createNewConversation() {
 
         if (data.success) {
             currentSessionId = data.sessionId;
-            
-            // Réinitialiser l'interface
-            chatContainer.innerHTML = `
-                <div class="empty-state">
-                    <i class="bi bi-chat-dots empty-icon"></i>
-                    <h4 class="mt-3">Nouvelle conversation</h4>
-                    <p class="text-muted">Posez votre première question pour commencer</p>
-                </div>
-            `;
-            
-            chatTitle.textContent = 'Nouvelle conversation';
             sessionInfo.textContent = `Session: ${currentSessionId.substring(0, 8)}...`;
+            
+            // Réinitialiser l'interface avec les suggestions
+            isFirstInteraction = true;
+            resetToWelcomeScreen();
             
             // Activer l'input
             userInput.disabled = false;
@@ -76,6 +70,96 @@ async function createNewConversation() {
     }
 }
 
+// Réinitialiser l'écran de bienvenue
+function resetToWelcomeScreen() {
+    chatContainer.innerHTML = `
+        <div class="welcome-section">
+            <div class="text-center mb-4">
+                <i class="bi bi-mortarboard-fill" style="font-size: 4rem; color: var(--saint-louis-orange);"></i>
+                <h3 class="mt-3">Bienvenue sur l'assistant BTS SIO</h3>
+                <p class="text-muted">Découvrez notre formation en Services Informatiques aux Organisations</p>
+            </div>
+
+            <div class="suggestions-container">
+                <h6 class="text-muted mb-3">Questions fréquentes :</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="suggestion-card" data-question="Qu'est-ce que le BTS SIO ?">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <div>
+                                <strong>Présentation générale</strong>
+                                <p class="mb-0 small text-muted">Qu'est-ce que le BTS SIO ?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="suggestion-card" data-question="Quelles sont les deux options du BTS SIO ?">
+                            <i class="bi bi-diagram-3-fill"></i>
+                            <div>
+                                <strong>Les options SISR et SLAM</strong>
+                                <p class="mb-0 small text-muted">Quelles sont les différences ?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="suggestion-card" data-question="Quels sont les débouchés professionnels après un BTS SIO ?">
+                            <i class="bi bi-briefcase-fill"></i>
+                            <div>
+                                <strong>Débouchés</strong>
+                                <p class="mb-0 small text-muted">Quels métiers après le BTS ?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="suggestion-card" data-question="Quelles sont les conditions d'admission au BTS SIO ?">
+                            <i class="bi bi-person-check-fill"></i>
+                            <div>
+                                <strong>Admission</strong>
+                                <p class="mb-0 small text-muted">Comment intégrer la formation ?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="suggestion-card" data-question="Quel est le programme du BTS SIO ?">
+                            <i class="bi bi-book-fill"></i>
+                            <div>
+                                <strong>Programme</strong>
+                                <p class="mb-0 small text-muted">Quelles matières étudiées ?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="suggestion-card" data-question="Comment se déroulent les stages en BTS SIO ?">
+                            <i class="bi bi-building-fill"></i>
+                            <div>
+                                <strong>Stages</strong>
+                                <p class="mb-0 small text-muted">Durée et organisation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    chatTitle.textContent = 'Découvrir le BTS SIO';
+    
+    // Réattacher les event listeners sur les suggestions
+    attachSuggestionListeners();
+}
+
+// Attacher les event listeners aux cartes de suggestion
+function attachSuggestionListeners() {
+    const suggestionCards = document.querySelectorAll('.suggestion-card');
+    suggestionCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const question = this.getAttribute('data-question');
+            userInput.value = question;
+            sendMessage();
+        });
+    });
+}
+
 // Envoyer un message
 async function sendMessage() {
     const message = userInput.value.trim();
@@ -83,7 +167,7 @@ async function sendMessage() {
     if (!message) return;
 
     if (!currentSessionId) {
-        showAlert('Veuillez créer une nouvelle conversation', 'warning');
+        showAlert('Erreur: pas de session active', 'danger');
         return;
     }
 
@@ -91,10 +175,13 @@ async function sendMessage() {
     userInput.disabled = true;
     sendBtn.disabled = true;
 
-    // Supprimer l'empty state si présent
-    const emptyState = chatContainer.querySelector('.empty-state');
-    if (emptyState) {
-        emptyState.remove();
+    // Supprimer la welcome section si c'est la première interaction
+    if (isFirstInteraction) {
+        const welcomeSection = chatContainer.querySelector('.welcome-section');
+        if (welcomeSection) {
+            welcomeSection.remove();
+        }
+        isFirstInteraction = false;
     }
 
     // Afficher le message de l'utilisateur
@@ -125,8 +212,8 @@ async function sendMessage() {
             // Afficher la réponse de l'assistant
             addMessage(data.response, false);
             
-            // Mettre à jour le titre si c'est le premier message
-            if (data.isFirstMessage && data.title) {
+            // Mettre à jour le titre si fourni
+            if (data.title) {
                 chatTitle.textContent = data.title;
             }
         } else {
@@ -214,5 +301,19 @@ userInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Message de bienvenue au chargement
-console.log('✅ Assistant IA - Saint Louis Collège chargé');
+// Auto-ajuster la hauteur du textarea
+userInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+});
+
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('✅ Assistant IA - Saint Louis Collège chargé');
+    
+    // Créer automatiquement une conversation par défaut
+    await createNewConversation();
+    
+    // Attacher les listeners aux suggestions
+    attachSuggestionListeners();
+});
