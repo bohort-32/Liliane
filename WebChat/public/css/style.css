@@ -549,3 +549,121 @@ html, body {
     color: var(--saint-louis-blue);
     font-weight: 600;
 }
+
+
+/* Historique des conversations */
+.conversations-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.conversation-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.conversation-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+}
+
+.conversation-item.active {
+    background: var(--saint-louis-orange);
+    border-color: var(--saint-louis-orange);
+}
+
+.conversation-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.conversation-item-title {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.conversation-item.active .conversation-item-title {
+    font-weight: 600;
+}
+
+.conversation-item-date {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.conversation-item.active .conversation-item-date {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.conversation-item-actions {
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.conversation-item:hover .conversation-item-actions {
+    opacity: 1;
+}
+
+.conversation-item-actions button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.conversation-item-actions button:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.no-conversations {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.no-conversations i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Scrollbar personnalisée pour la sidebar */
+.conversations-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.conversations-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.conversations-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.conversations-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

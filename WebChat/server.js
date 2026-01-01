@@ -81,39 +81,71 @@ app.post('/api/conversations/new', (req, res) => {
   });
 });
 
-// Route pour obtenir toutes les conversations
+// Route pour récupérer toutes les conversations
 app.get('/api/conversations', (req, res) => {
   const allConversations = Array.from(conversations.values()).map(conv => ({
     id: conv.id,
-    createdAt: conv.createdAt,
-    messageCount: conv.messages.length,
-    title: conv.title,
-    preview: conv.messages[0]?.content.substring(0, 50) || 'Nouvelle conversation'
+    title: conv.title || 'Nouvelle conversation',
+    lastMessage: conv.messages.length > 0 
+      ? conv.messages[conv.messages.length - 1].content.substring(0, 50)
+      : '',
+    timestamp: conv.createdAt,
+    messageCount: conv.messages.length
   }));
-  
-  res.json({ 
-    success: true, 
-    conversations: allConversations.reverse()
+
+  res.json({
+    success: true,
+    conversations: allConversations
   });
 });
 
-// Route pour obtenir une conversation spécifique
+
+// Route pour récupérer une conversation spécifique
 app.get('/api/conversations/:sessionId', (req, res) => {
   const { sessionId } = req.params;
   const conversation = conversations.get(sessionId);
-  
+
   if (!conversation) {
-    return res.status(404).json({ 
-      success: false, 
-      error: 'Conversation non trouvée' 
+    return res.status(404).json({
+      success: false,
+      error: 'Conversation non trouvée'
     });
   }
-  
-  res.json({ 
-    success: true, 
-    conversation 
+
+  res.json({
+    success: true,
+    sessionId: conversation.id,
+    title: conversation.title || 'Nouvelle conversation',
+    createdAt: conversation.createdAt,
+    messages: conversation.messages || [] // S'assurer que messages existe toujours
   });
 });
+
+
+// Route pour récupérer une conversation spécifique
+app.get('/api/conversations/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  const conversation = conversations.get(sessionId);
+
+  if (!conversation) {
+    return res.status(404).json({
+      success: false,
+      error: 'Conversation non trouvée'
+    });
+  }
+
+  res.json({
+    success: true,
+    conversation: {
+      id: conversation.id,
+      title: conversation.title,
+      createdAt: conversation.createdAt,
+      messages: conversation.messages
+    },
+    messages: conversation.messages
+  });
+});
+
 
 // Route pour supprimer une conversation
 app.delete('/api/conversations/:sessionId', (req, res) => {
