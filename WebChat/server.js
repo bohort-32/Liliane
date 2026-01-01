@@ -211,8 +211,6 @@ app.post('/api/chat', async (req, res) => {
       conversation.title = message.substring(0, 50);
     }
 
-    console.log('Question reçue:', message);
-
     saveConversationToFile(sessionId, message, true)
 
     // Construire l'historique des messages pour Ollama
@@ -238,7 +236,6 @@ app.post('/api/chat', async (req, res) => {
       stream: false
     });
 
-    console.log('Réponse Ollama:', response.message.content);
     saveConversationToFile(sessionId, response.message.content, false);
 
     // Sauvegarder les messages dans l'historique
