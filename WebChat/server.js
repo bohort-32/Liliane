@@ -64,6 +64,18 @@ function generateSessionId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
+
+// Sauvegarde des conversations dans un fichier
+function saveConversationToFile(sessionId, message, is_user) {
+  const logDir = path.join(__dirname, 'logs');
+  const logFilePath = path.join(logDir, `${sessionId}.txt`);
+  const role = is_user ? 'User' : 'Assistant';
+  const logEntry = `[${new Date().toISOString()}] ${role}: ${message}\n`;
+  fs.mkdir(logDir, { recursive: true })
+    .then(() => fs.appendFile(logFilePath, logEntry))
+    .catch(err => console.error('Erreur lors de la sauvegarde de la conversation:', err));
+}
+
 // Route pour créer une nouvelle conversation
 app.post('/api/conversations/new', (req, res) => {
   const sessionId = generateSessionId();
@@ -73,9 +85,9 @@ app.post('/api/conversations/new', (req, res) => {
     messages: [],
     title: 'Nouvelle conversation'
   });
-  
-  res.json({ 
-    success: true, 
+
+  res.json({
+    success: true,
     sessionId,
     message: 'Nouvelle conversation créée'
   });
@@ -86,7 +98,7 @@ app.get('/api/conversations', (req, res) => {
   const allConversations = Array.from(conversations.values()).map(conv => ({
     id: conv.id,
     title: conv.title || 'Nouvelle conversation',
-    lastMessage: conv.messages.length > 0 
+    lastMessage: conv.messages.length > 0
       ? conv.messages[conv.messages.length - 1].content.substring(0, 50)
       : '',
     timestamp: conv.createdAt,
@@ -150,16 +162,16 @@ app.get('/api/conversations/:sessionId', (req, res) => {
 // Route pour supprimer une conversation
 app.delete('/api/conversations/:sessionId', (req, res) => {
   const { sessionId } = req.params;
-  
+
   if (conversations.delete(sessionId)) {
-    res.json({ 
-      success: true, 
-      message: 'Conversation supprimée' 
+    res.json({
+      success: true,
+      message: 'Conversation supprimée'
     });
   } else {
-    res.status(404).json({ 
-      success: false, 
-      error: 'Conversation non trouvée' 
+    res.status(404).json({
+      success: false,
+      error: 'Conversation non trouvée'
     });
   }
 });
@@ -201,6 +213,8 @@ app.post('/api/chat', async (req, res) => {
 
     console.log('Question reçue:', message);
 
+    saveConversationToFile(sessionId, message, true)
+
     // Construire l'historique des messages pour Ollama
     const ollamaMessages = [
       {
@@ -225,6 +239,7 @@ app.post('/api/chat', async (req, res) => {
     });
 
     console.log('Réponse Ollama:', response.message.content);
+    saveConversationToFile(sessionId, response.message.content, false);
 
     // Sauvegarder les messages dans l'historique
     conversation.messages.push({
@@ -283,9 +298,9 @@ app.put('/api/admin/prompt', async (req, res) => {
     const { prompt } = req.body;
 
     if (!prompt) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Prompt requis' 
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt requis'
       });
     }
 
@@ -314,7 +329,7 @@ app.put('/api/admin/prompt', async (req, res) => {
 // Route pour recharger le prompt depuis le fichier (ADMIN)
 app.post('/api/admin/prompt/reload', async (req, res) => {
   const success = await reloadSystemPrompt();
-  
+
   res.json({
     success,
     message: success ? 'Prompt rechargé avec succès' : 'Erreur lors du rechargement',
@@ -327,7 +342,7 @@ app.post('/api/admin/prompt/reload', async (req, res) => {
 setInterval(() => {
   const now = Date.now();
   const maxAge = 24 * 60 * 60 * 1000;
-  
+
   for (const [sessionId, conv] of conversations.entries()) {
     const age = now - new Date(conv.createdAt).getTime();
     if (age > maxAge) {
@@ -341,7 +356,7 @@ setInterval(() => {
 async function startServer() {
   // Charger le prompt système au démarrage
   await loadSystemPrompt();
-  
+
   // Démarrer le serveur
   app.listen(PORT, () => {
     console.log(`
