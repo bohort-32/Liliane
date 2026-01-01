@@ -1,355 +1,523 @@
-// Variables globales
-let currentSessionId = null;
+// ========================================
+// ENCAPSULATION POUR ÉVITER LES CONFLITS
+// ========================================
+(function () {
+    'use strict';
 
-// Éléments du DOM
-const chatContainer = document.getElementById('chatContainer');
-const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
-const loading = document.getElementById('loading');
-const conversationsList = document.getElementById('conversationsList');
-const newChatBtn = document.getElementById('newChatBtn');
-const chatTitle = document.getElementById('chatTitle');
-const sessionInfo = document.getElementById('sessionInfo');
+    // ========================================
+    // VARIABLES GLOBALES
+    // ========================================
+    let currentSessionId = null;
+    let isFirstInteraction = true;
+    let isSending = false;
+    let conversations = [];
 
-// Fonction pour formater la date
-function formatDate(isoDate) {
-    const date = new Date(isoDate);
-    const now = new Date();
-    const diff = now - date;
+    // ========================================
+    // ÉLÉMENTS DOM
+    // ========================================
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const loading = document.getElementById('loading');
+    const chatTitle = document.getElementById('chatTitle');
+    const sessionInfo = document.getElementById('sessionInfo');
+    const conversationsList = document.getElementById('conversationsList');
 
-    if (diff < 60000) return 'À l\'instant';
-    if (diff < 3600000) return `Il y a ${Math.floor(diff / 60000)} min`;
-    if (diff < 86400000) return `Il y a ${Math.floor(diff / 3600000)}h`;
+    // ========================================
+    // GESTION DE L'HISTORIQUE
+    // ========================================
 
-    return date.toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'short'
-    });
-}
-
-// Fonction pour formater l'heure
-function formatTime(isoDate) {
-    return new Date(isoDate).toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-// Charger la liste des conversations
-async function loadConversations() {
-    try {
-        const response = await fetch('/api/conversations');
-        const data = await response.json();
-
-        if (data.success) {
-            displayConversations(data.conversations);
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des conversations:', error);
-        showAlert('Erreur lors du chargement des conversations', 'danger');
-    }
-}
-
-// Afficher la liste des conversations
-function displayConversations(conversations) {
-    conversationsList.innerHTML = '';
-
-    if (conversations.length === 0) {
-        conversationsList.innerHTML = `
-            <div class="text-center text-white-50 p-3">
-                <i class="bi bi-inbox"></i>
-                <p class="small mb-0 mt-2">Aucune conversation</p>
-            </div>
-        `;
-        return;
-    }
-
-    conversations.forEach(conv => {
-        const item = document.createElement('div');
-        item.className = 'conversation-item';
-        if (conv.id === currentSessionId) {
-            item.classList.add('active');
-        }
-
-        item.innerHTML = `
-            <div class="conversation-title">${conv.title}</div>
-            <div class="conversation-meta">
-                <i class="bi bi-clock"></i> ${formatDate(conv.createdAt)} • 
-                <i class="bi bi-chat"></i> ${conv.messageCount}
-            </div>
-            <button class="delete-btn" onclick="deleteConversation('${conv.id}', event)" title="Supprimer">
-                <i class="bi bi-x"></i>
-            </button>
-        `;
-
-        item.onclick = (e) => {
-            if (!e.target.closest('.delete-btn')) {
-                loadConversation(conv.id);
-            }
-        };
-
-        conversationsList.appendChild(item);
-    });
-}
-
-// Créer une nouvelle conversation
-async function createNewConversation() {
-    try {
-        const response = await fetch('/api/conversations/new', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            currentSessionId = data.sessionId;
-            chatContainer.innerHTML = '';
-            addMessage('Bonjour ! Je suis votre assistant pédagogique du Saint Louis Collège. Comment puis-je vous aider dans vos apprentissages aujourd\'hui ? 📚', false);
-
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
-
-            chatTitle.textContent = 'Nouvelle conversation';
-            sessionInfo.textContent = 'Conversation active';
-
-            await loadConversations();
-        }
-    } catch (error) {
-        console.error('Erreur lors de la création de la conversation:', error);
-        showAlert('Erreur lors de la création de la conversation', 'danger');
-    }
-}
-
-// Charger une conversation existante
-async function loadConversation(sessionId) {
-    try {
-        const response = await fetch(`/api/conversations/${sessionId}`);
-        const data = await response.json();
-
-        if (data.success) {
-            currentSessionId = sessionId;
-            chatContainer.innerHTML = '';
-
-            chatTitle.textContent = data.conversation.title;
-            sessionInfo.textContent = `${data.conversation.messages.length} messages • ${formatDate(data.conversation.createdAt)}`;
-
-            if (data.conversation.messages.length === 0) {
-                addMessage('Bonjour ! Je suis votre assistant pédagogique du Saint Louis Collège. Comment puis-je vous aider dans vos apprentissages aujourd\'hui ? 📚', false);
-            } else {
-                data.conversation.messages.forEach(msg => {
-                    addMessage(msg.content, msg.role === 'user', msg.timestamp, false);
-                });
-            }
-
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
-
-            // Mettre à jour l'interface
-            document.querySelectorAll('.conversation-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.currentTarget?.classList.add('active');
-
-            await loadConversations();
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement de la conversation:', error);
-        showAlert('Erreur lors du chargement de la conversation', 'danger');
-    }
-}
-
-// Supprimer une conversation
-async function deleteConversation(sessionId, event) {
-    event.stopPropagation();
-
-    if (!confirm('Voulez-vous vraiment supprimer cette conversation ?')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/conversations/${sessionId}`, {
-            method: 'DELETE'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            if (currentSessionId === sessionId) {
-                currentSessionId = null;
-                chatContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="bi bi-chat-dots empty-icon"></i>
-                        <h4 class="mt-3">Conversation supprimée</h4>
-                        <p class="text-muted">Sélectionnez ou créez une nouvelle conversation</p>
-                    </div>
-                `;
-                userInput.disabled = true;
-                sendBtn.disabled = true;
-                chatTitle.textContent = 'Assistant Pédagogique';
-                sessionInfo.textContent = 'Sélectionnez ou créez une conversation';
-            }
-
-            await loadConversations();
-            showAlert('Conversation supprimée avec succès', 'success');
-        }
-    } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
-        showAlert('Erreur lors de la suppression', 'danger');
-    }
-}
-
-// Fonction pour ajouter un message
-// Configuration de Marked.js
-marked.setOptions({
-    breaks: true, // Convertir les sauts de ligne en <br>
-    gfm: true, // GitHub Flavored Markdown
-    headerIds: false,
-    mangle: false
-});
-
-// Fonction pour échapper le HTML (sécurité)
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-// Fonction pour ajouter un message avec support Markdown
-// Fonction pour ajouter un message avec support Markdown
-function addMessage(content, isUser, timestamp = null, scroll = true) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
-    
-    const time = timestamp ? formatTime(timestamp) : formatTime(new Date().toISOString());
-    const icon = isUser ? 'person-fill' : 'robot';
-    
-    let processedContent;
-    if (isUser) {
-        processedContent = escapeHtml(content).replace(/\n/g, '<br>');
-    } else {
+    // Charger les conversations depuis le localStorage
+    function loadConversations() {
         try {
-            processedContent = marked.parse(content);
-        } catch (e) {
-            console.error('Erreur de parsing Markdown:', e);
-            processedContent = escapeHtml(content).replace(/\n/g, '<br>');
+            const saved = localStorage.getItem('saintlouis_conversations');
+            conversations = saved ? JSON.parse(saved) : [];
+            renderConversationsList();
+        } catch (error) {
+            console.error('Erreur lors du chargement des conversations:', error);
+            conversations = [];
         }
     }
-    
-    messageDiv.innerHTML = `
-        <div class="message-avatar">
-            <i class="bi bi-${icon}"></i>
-        </div>
-        <div class="message-bubble">
-            <div class="message-content">${processedContent}</div>
-            <div class="message-time">${time}</div>
-        </div>
-    `;
-    
-    chatContainer.appendChild(messageDiv);
-    
-    // Appliquer la coloration syntaxique aux blocs de code
-    if (!isUser && typeof hljs !== 'undefined') {
-        messageDiv.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-        });
+
+    // Sauvegarder les conversations dans le localStorage
+    function saveConversations() {
+        try {
+            localStorage.setItem('saintlouis_conversations', JSON.stringify(conversations));
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde des conversations:', error);
+        }
     }
-    
-    if (scroll) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+// Ajouter ou mettre à jour une conversation
+function updateConversation(sessionId, title, messages) {
+    // Vérification de sécurité
+    if (!messages || !Array.isArray(messages)) {
+        console.warn('Messages invalides pour la conversation', sessionId);
+        return;
     }
+
+    const index = conversations.findIndex(c => c.id === sessionId);
+    
+    const lastMessageContent = messages.length > 0 && messages[messages.length - 1].content 
+        ? messages[messages.length - 1].content.substring(0, 50)
+        : '';
+
+    const conversation = {
+        id: sessionId,
+        title: title || 'Nouvelle conversation',
+        lastMessage: lastMessageContent,
+        timestamp: new Date().toISOString(),
+        messages: messages
+    };
+
+    if (index !== -1) {
+        conversations[index] = conversation;
+    } else {
+        conversations.unshift(conversation);
+    }
+
+    // Limiter à 50 conversations max
+    if (conversations.length > 50) {
+        conversations = conversations.slice(0, 50);
+    }
+
+    saveConversations();
+    renderConversationsList();
 }
 
 
-// Fonction pour envoyer un message
-async function sendMessage() {
-    const message = userInput.value.trim();
+    // Supprimer une conversation
+    function deleteConversation(sessionId) {
+        conversations = conversations.filter(c => c.id !== sessionId);
+        saveConversations();
+        renderConversationsList();
 
-    if (!message || !currentSessionId) return;
+        if (currentSessionId === sessionId) {
+            createNewConversation();
+        }
+    }
 
-    // Afficher le message de l'utilisateur
-    addMessage(message, true);
-    userInput.value = '';
-
-    // Désactiver l'input et le bouton
-    sendBtn.disabled = true;
-    userInput.disabled = true;
-    loading.classList.remove('d-none');
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message,
-                sessionId: currentSessionId
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            addMessage(data.response, false);
-            await loadConversations();
-        } else {
-            addMessage('❌ Erreur: ' + (data.error || 'Erreur inconnue'), false);
-            showAlert(data.error || 'Erreur lors de l\'envoi du message', 'danger');
+    // Afficher la liste des conversations
+    function renderConversationsList() {
+        if (conversations.length === 0) {
+            conversationsList.innerHTML = `
+                <div class="no-conversations">
+                    <i class="bi bi-chat-dots"></i>
+                    <p>Aucune conversation</p>
+                </div>
+            `;
+            return;
         }
 
-    } catch (error) {
-        addMessage('❌ Erreur de connexion au serveur', false);
-        console.error('Erreur:', error);
-        showAlert('Erreur de connexion au serveur', 'danger');
-    } finally {
-        sendBtn.disabled = false;
-        userInput.disabled = false;
-        loading.classList.add('d-none');
+        conversationsList.innerHTML = conversations.map(conv => {
+            const date = new Date(conv.timestamp);
+            const formattedDate = formatDate(date);
+            const isActive = conv.id === currentSessionId;
+
+            return `
+                <div class="conversation-item ${isActive ? 'active' : ''}" data-session-id="${conv.id}">
+                    <div class="conversation-item-header">
+                        <h6 class="conversation-item-title">${escapeHtml(conv.title)}</h6>
+                        <div class="conversation-item-actions">
+                            <button class="delete-conversation" data-session-id="${conv.id}" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small class="conversation-item-date">${formattedDate}</small>
+                </div>
+            `;
+        }).join('');
+
+        // Attacher les événements
+        attachConversationListeners();
+    }
+
+    // Formater la date
+    function formatDate(date) {
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return 'À l\'instant';
+        if (minutes < 60) return `Il y a ${minutes} min`;
+        if (hours < 24) return `Il y a ${hours}h`;
+        if (days < 7) return `Il y a ${days}j`;
+
+        return date.toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'short'
+        });
+    }
+
+    // Attacher les listeners aux conversations
+    function attachConversationListeners() {
+        // Clic sur une conversation
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.addEventListener('click', function (e) {
+                if (!e.target.closest('.delete-conversation')) {
+                    const sessionId = this.dataset.sessionId;
+                    loadConversation(sessionId);
+                }
+            });
+        });
+
+        // Clic sur le bouton supprimer
+        document.querySelectorAll('.delete-conversation').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const sessionId = this.dataset.sessionId;
+                if (confirm('Supprimer cette conversation ?')) {
+                    deleteConversation(sessionId);
+                }
+            });
+        });
+    }
+
+    // Charger une conversation existante
+    function loadConversation(sessionId) {
+        const conversation = conversations.find(c => c.id === sessionId);
+        if (!conversation) return;
+
+        currentSessionId = sessionId;
+        isFirstInteraction = false;
+
+        // Mettre à jour le titre
+        chatTitle.textContent = conversation.title;
+        sessionInfo.textContent = `Conversation du ${new Date(conversation.timestamp).toLocaleDateString('fr-FR')}`;
+
+        // Vider et afficher les messages
+        chatContainer.innerHTML = '';
+        conversation.messages.forEach(msg => {
+            addMessage(msg.content, msg.role === 'user');
+        });
+
+        renderConversationsList();
         userInput.focus();
     }
-}
 
-// Afficher une alerte (toast)
-function showAlert(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
-    alertDiv.style.zIndex = '9999';
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(alertDiv);
+    // ========================================
+    // FONCTIONS D'AFFICHAGE
+    // ========================================
 
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
+    function displayWelcomeScreen() {
+        const welcomeHTML = `
+            <div class="welcome-section">
+                <div class="text-center mb-4">
+                    <i class="bi bi-mortarboard-fill" style="font-size: 4rem; color: var(--saint-louis-orange);"></i>
+                    <h3 class="mt-3">Bienvenue sur l'assistant BTS SIO</h3>
+                    <p class="text-muted">Découvrez notre formation en Services Informatiques aux Organisations</p>
+                </div>
 
-// Event listeners
-newChatBtn.addEventListener('click', createNewConversation);
-sendBtn.addEventListener('click', sendMessage);
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+                <div class="suggestions-grid">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Qu'est-ce que le BTS SIO ?">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <div>
+                                    <strong>Présentation du BTS SIO</strong>
+                                    <p class="mb-0 small text-muted">Découvrir la formation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Quelles sont les différences entre SISR et SLAM ?">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <div>
+                                    <strong>Options SISR / SLAM</strong>
+                                    <p class="mb-0 small text-muted">Comprendre les spécialités</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Quels sont les prérequis pour intégrer le BTS SIO ?">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                                <div>
+                                    <strong>Conditions d'admission</strong>
+                                    <p class="mb-0 small text-muted">Bacs acceptés et prérequis</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Quels sont les débouchés professionnels ?">
+                                <i class="bi bi-briefcase-fill"></i>
+                                <div>
+                                    <strong>Débouchés professionnels</strong>
+                                    <p class="mb-0 small text-muted">Quelles carrières après le BTS ?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Comment s'inscrire au BTS SIO ?">
+                                <i class="bi bi-pencil-square"></i>
+                                <div>
+                                    <strong>Procédure d'inscription</strong>
+                                    <p class="mb-0 small text-muted">Comment postuler ?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="suggestion-card" data-question="Comment se déroulent les stages ?">
+                                <i class="bi bi-building"></i>
+                                <div>
+                                    <strong>Stages en entreprise</strong>
+                                    <p class="mb-0 small text-muted">Durée et organisation</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        chatContainer.innerHTML = welcomeHTML;
+        attachSuggestionListeners();
+    }
+
+    function attachSuggestionListeners() {
+        document.querySelectorAll('.suggestion-card').forEach(card => {
+            card.addEventListener('click', function () {
+                const question = this.dataset.question;
+                userInput.value = question;
+                sendMessage();
+            });
+        });
+    }
+
+    async function createNewConversation() {
+        try {
+            const response = await fetch('/api/conversations/new', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                currentSessionId = data.sessionId;
+                isFirstInteraction = true;
+
+                chatTitle.textContent = 'Découvrir le BTS SIO';
+                sessionInfo.textContent = 'Nouvelle conversation';
+
+                displayWelcomeScreen();
+                renderConversationsList();
+                userInput.value = '';
+                userInput.focus();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showAlert('Erreur lors de la création de la conversation');
+        }
+    }
+
+    function addMessage(content, isUser = false) {
+        if (isFirstInteraction && !isUser) {
+            chatContainer.innerHTML = '';
+            isFirstInteraction = false;
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+
+        const timestamp = new Date().toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        if (isUser) {
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="message-bubble">
+                    <div class="message-content">${escapeHtml(content)}</div>
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-bubble">
+                    <div class="message-content">${formatMessage(content)}</div>
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+        }
+
+        chatContainer.appendChild(messageDiv);
+
+        setTimeout(() => {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
+    }
+
+    function formatMessage(text) {
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false
+            });
+
+            return marked.parse(text);
+        }
+
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br>');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showAlert(message, type = 'danger') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+        alertDiv.style.zIndex = '9999';
+        alertDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // ========================================
+    // ENVOI DE MESSAGE
+    // ========================================
+    async function sendMessage() {
+        const message = userInput.value.trim();
+
+        if (!message || isSending) return;
+        if (!currentSessionId) {
+            await createNewConversation();
+        }
+
+        isSending = true;
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+
+        addMessage(message, true);
+        userInput.value = '';
+        userInput.style.height = 'auto';
+
+        loading.classList.remove('d-none');
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message,
+                    sessionId: currentSessionId
+                })
+            });
+
+            const data = await response.json();
+            loading.classList.add('d-none');
+
+            if (data.success) {
+                addMessage(data.response, false);
+
+                // Récupérer l'historique complet
+                try {
+                    const historyResponse = await fetch(`/api/conversations/${currentSessionId}`);
+                    const historyData = await historyResponse.json();
+
+                    if (historyData.success && historyData.messages) {
+                        // Générer un titre si c'est le premier message
+                        let title = chatTitle.textContent;
+                        if (title === 'Découvrir le BTS SIO' || title === 'Nouvelle conversation') {
+                            title = message.substring(0, 40) + (message.length > 40 ? '...' : '');
+                            chatTitle.textContent = title;
+                        }
+
+                        updateConversation(currentSessionId, title, historyData.messages);
+                    }
+                } catch (historyError) {
+                    console.error('Erreur lors de la récupération de l\'historique:', historyError);
+                    // Continuer même si l'historique ne peut pas être récupéré
+                }
+
+                if (typeof hljs !== 'undefined') {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }
+            } else {
+                showAlert(data.error || 'Erreur lors de l\'envoi du message');
+            }
+        } catch (error) {
+            loading.classList.add('d-none');
+            console.error('Erreur:', error);
+            showAlert('Erreur de connexion au serveur');
+        } finally {
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            isSending = false;
+            userInput.focus();
+        }
+    }
+
+
+
+    // ========================================
+    // AUTO-RESIZE DU TEXTAREA
+    // ========================================
+    userInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+    });
+
+    // ========================================
+    // EVENT LISTENERS
+    // ========================================
+    newChatBtn.addEventListener('click', createNewConversation);
+
+    sendBtn.addEventListener('click', (e) => {
         e.preventDefault();
         sendMessage();
-    }
-});
-
-// Charger les conversations au démarrage
-loadConversations();
-
-// Gestion du responsive (toggle sidebar sur mobile)
-if (window.innerWidth < 768) {
-    const sidebar = document.querySelector('.sidebar');
-    newChatBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('show');
     });
-}
+
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // ========================================
+    // INITIALISATION
+    // ========================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('✅ Assistant IA - Saint Louis Collège chargé');
+
+        if (typeof marked === 'undefined') {
+            console.warn('⚠️ Marked.js non chargé');
+        }
+
+        if (typeof hljs === 'undefined') {
+            console.warn('⚠️ Highlight.js non chargé');
+        }
+
+        loadConversations();
+        await createNewConversation();
+    });
+
+})();
