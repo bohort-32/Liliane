@@ -1,7 +1,3 @@
-Voici une version améliorée de votre README avec une meilleure structure, des formulations plus claires et des éléments visuels pour faciliter la compréhension. J'ai également ajouté des badges pour les technologies utilisées et une section pour les contributeurs.
-
----
-
 # **Lil-IA-ne** 🎓
 *Un assistant d'orientation intelligent pour le **BTS SIO** du lycée Saint-Louis (Châteaulin)*
 
