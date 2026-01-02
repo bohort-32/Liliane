@@ -1,2 +1,7 @@
 debug_content.txt
 */logs/*
+*/logs
+*/system-prompt.txt
+*/node_modules/*
+*/node_modules
+package-lock.json
