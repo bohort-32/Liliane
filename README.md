@@ -12,7 +12,8 @@ Lil-IA-ne est un LLM pour répondre aux questions d'orientation du BTS SIO du ly
      * Le modèle peut être modifié
  *  [Python 3](https://www.python.org/downloads/) installé et les librairies suivantes :
     * `pip install pandas`
- *  [NodeJS](https://nodejs.org/en) installé
+ *  [NodeJS](https://nodejs.org/en) installé et les librairies suivantes :
+     * `npm i express`
 
 
 
