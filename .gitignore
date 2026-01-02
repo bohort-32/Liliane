@@ -5,3 +5,4 @@ debug_content.txt
 */node_modules/*
 */node_modules
 package-lock.json
+system-prompt.txt
