@@ -105,25 +105,3 @@ Pour appliquer vos modifications :
    👉 [http://localhost:3000](http://localhost:3000)
 
 ---
-
-## **🤝 Contribuer**
-Les contributions sont les bienvenues ! Pour proposer des améliorations :
-1. **Fork** le projet.
-2. Créez une **branche** (`git checkout -b feature/ma-fonctionnalite`).
-3. **Commit** vos changements (`git commit -m "Ajout de X"`).
-4. **Push** (`git push origin feature/ma-fonctionnalite`).
-5. Ouvrez une **Pull Request**.
-
-### **Idées d'améliorations**
-- Ajouter un système de **FAQ dynamique**.
-- Intégrer un **chatbot vocal** (avec Web Speech API).
-- Optimiser le **temps de réponse** du LLM.
-
----
-
-## **📜 Licence**
-Ce projet est sous licence **MIT** – voir [LICENSE](LICENSE) pour plus de détails.
-
----
-*💡 Besoin d'aide ? Ouvrez une [issue](https://github.com/votre-utilisateur/Lil-IA-ne/issues) !*
-*🌟 Un star ⭐ sur GitHub fait toujours plaisir !*
