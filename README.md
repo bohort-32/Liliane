@@ -8,7 +8,6 @@ Voici une version améliorée de votre README avec une meilleure structure, des 
 [![Ollama](https://img.shields.io/badge/Ollama-3.2-ff69b4?logo=ollama)](https://ollama.com/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?logo=nodedotjs)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
