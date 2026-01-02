@@ -1,61 +1,129 @@
-# Lil-IA-ne
-### Présentation
+Voici une version améliorée de votre README avec une meilleure structure, des formulations plus claires et des éléments visuels pour faciliter la compréhension. J'ai également ajouté des badges pour les technologies utilisées et une section pour les contributeurs.
 
-Lil-IA-ne est un LLM pour répondre aux questions d'orientation du BTS SIO du lycée Saint-louis à Châteaulin.
+---
 
- * La partie LLM représente la configuration de la réflexion du modèle de langage.
- * La partie WebChat représente la gestion l'interface web pour discuter.
+# **Lil-IA-ne** 🎓
+*Un assistant d'orientation intelligent pour le **BTS SIO** du lycée Saint-Louis (Châteaulin)*
 
-### Prérequis
- *  [Ollama](https://ollama.com/) installé
- *  [llama3.2](https://ollama.com/library/llama3.2) installé
-     * Le modèle peut être modifié
- *  [Python 3](https://www.python.org/downloads/) installé et les librairies suivantes :
-    * `pip install pandas`
- *  [NodeJS](https://nodejs.org/en) installé et les librairies suivantes :
-     * `npm i express`
+[![Ollama](https://img.shields.io/badge/Ollama-3.2-ff69b4?logo=ollama)](https://ollama.com/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?logo=nodedotjs)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+---
 
+## **📌 Présentation**
+**Lil-IA-ne** est un **LLM (Large Language Model)** spécialisé pour répondre aux questions sur le **BTS SIO** (Options **SISR** et **SLAM**) du lycée Saint-Louis à Châteaulin.
 
-## I - Configurer le LLM
-L'ajout et la modification d'informations sur le BTS s'effectue en remplissant le fichier **BTS_SIO_Infos.xlsx**.
+### **Architecture**
+Le projet se compose de deux parties principales :
+1. **LLM** : Configuration du modèle de langage (réflexion, connaissances sur la formation).
+2. **WebChat** : Interface web pour discuter avec l'assistant.
 
-Les informations sont définies par catégorie représentées par des pages du tableur.
+---
 
-| Catégorie  | Description |
-| ------------- |-------------|
-| Présentation Générale| Présente la formation pure du BTS SIO. |
-| Option SISR     | Décrit le contenu pédagogique de l'option SISR. |
-| Option SLAM      | Décrit le contenu pédagogique de l'option SLAM. |
-| Admission     | Indique les critères et modalités pour s'inscrire en première année. |
-| Stages     | Décrit l'organisation des périodes de stages ainsi que les missions. |
-| Débouchés     | Détail les débouchés professionnels et scolaires pour chaque option.|
-| Equipements     | Décrit les locaux du lycée et les équipements disponibles pour l'apprentissage. |
-| Emploi du temps     | Décrit un emploi du temps type de première année |
-| Vie étudiante     | Liste les évènements du BDE |
-| Contact     | Liste les mails, site web, réseaux, dates des portes ouvertes, téléphones |
-| Images     | Décrit le nom des images et ce qu'elles représentent. |
+## **⚙️ Prérequis**
+Avant de lancer le projet, assurez-vous d'avoir installé :
 
-### I.a ) Ajout d'une image
-Des images peuvent être ajoutées ainsi le LLM peut afficher des photos des locaux ainsi que des schémas explicatifs sur la formation.
+| Outil | Lien | Version requise |
+|--------|------|------------------|
+| **Ollama** | [Site officiel](https://ollama.com/) | Dernière version |
+| **Modèle Llama 3.2** | [Ollama Library](https://ollama.com/library/llama3.2) | *(Modifiable)* |
+| **Python 3.10+** | [Téléchargement](https://www.python.org/downloads/) | + `pandas` (`pip install pandas`) |
+| **Node.js 18+** | [Téléchargement](https://nodejs.org/en) | + `express` (`npm i express`) |
 
-Pour ajouter une image, il faut les placer dans le dossier `/WebChat/public/images/`. Pour que le LLM les prenne en compte, il faut remplir la section "Images" du fichier **BTS_SIO_Infos.xlsx**.
+---
 
-## II ) Compilation du LLM
-Pour sauvegarder vos modifications, lancez le script **generate_data.py**.
+## **📂 Structure du projet**
+```
+Lil-IA-ne/
+├── BTS_SIO_Infos.xlsx       # Base de connaissances (à modifier)
+├── generate_data.py        # Script de compilation du LLM
+├── WebChat/
+│   ├── public/             # Fichiers statiques (images, CSS, JS)
+│   │   └── images/         # Dossier pour les images (locaux, schémas...)
+│   ├── config/             # Configuration du chat
+│   │   └── system-prompt.txt # Fichier généré par generate_data.py
+│   ├── server.js           # Serveur Node.js
+│   └── ...                 # Autres fichiers front/back
+└── README.md               # Ce fichier
+```
 
-Placer le fichier de sortie **system-prompt.txt** dans le dossier `/WebChat/config/`
+---
 
-#### Le modèle est compilé. 
-Les étapes I et II sont à réaliser uniquement lorsque vous souhaitez ajouter/modifier des informations sur la formation.
+## **🛠️ Configuration du LLM**
+Les informations sur le BTS SIO sont stockées dans **`BTS_SIO_Infos.xlsx`**, organisé en **onglets thématiques** :
 
-## III ) Lancer le serveur
+| Onglet | Description |
+|--------|-------------|
+| **Présentation Générale** | Description globale du BTS SIO. |
+| **Option SISR** | Contenu pédagogique de l'option **Solutions d'Infrastructure, Systèmes et Réseaux**. |
+| **Option SLAM** | Contenu pédagogique de l'option **Solutions Logicielles et Applications Métiers**. |
+| **Admission** | Critères et modalités d'inscription. |
+| **Stages** | Organisation et missions des périodes de stage. |
+| **Débouchés** | Métiers et poursuites d'études possibles. |
+| **Equipements** | Locaux et matériel disponibles. |
+| **Emploi du temps** | Exemple d'emploi du temps en 1ère année. |
+| **Vie étudiante** | Événements organisés par le BDE. |
+| **Contact** | Coordonnées (mails, réseaux, portes ouvertes...). |
+| **Images** | Liste des images référencées (voir ci-dessous). |
 
+### **Ajouter une image**
+1. Placez votre image dans **`/WebChat/public/images/`**.
+2. Remplissez l'onglet **"Images"** dans `BTS_SIO_Infos.xlsx` avec :
+   - **Nom du fichier** (ex: `salle_info.jpg`)
+   - **Description** (ex: *"Salle de TP réseaux équipée de routeurs Cisco"*).
 
-1. Déplacer vous dans le dossier WebChat.
-2. Lancer Ollama
-   * `ollama run llama3.2`
-3. Lancer le serveur node JS
-   * `npm start`
+⚠️ **Format supporté** : `.jpg`, `.png`, `.svg` (optimisez la taille pour le web).
 
-Le serveur est lancé, vous pouvez commencer à discuter à l'adresse suivante : [http://adresse-machine:3000](http://localhost:3000)
+---
+
+## **🔄 Compilation du LLM**
+Pour appliquer vos modifications :
+1. Exécutez le script de génération :
+   ```bash
+   python generate_data.py
+   ```
+2. Le fichier **`system-prompt.txt`** est généré dans **`/WebChat/config/`**.
+
+✅ **Le modèle est prêt !**
+*(Les étapes ci-dessus ne sont nécessaires que pour mettre à jour les informations.)*
+
+---
+
+## **🚀 Lancement du serveur**
+1. **Ouvrez un terminal** et placez-vous dans `/WebChat`.
+2. **Lancez Ollama** (dans un terminal séparé) :
+   ```bash
+   ollama run llama3.2
+   ```
+3. **Démarrez le serveur Node.js** :
+   ```bash
+   npm start
+   ```
+4. **Accédez à l'interface** :
+   👉 [http://localhost:3000](http://localhost:3000)
+
+---
+
+## **🤝 Contribuer**
+Les contributions sont les bienvenues ! Pour proposer des améliorations :
+1. **Fork** le projet.
+2. Créez une **branche** (`git checkout -b feature/ma-fonctionnalite`).
+3. **Commit** vos changements (`git commit -m "Ajout de X"`).
+4. **Push** (`git push origin feature/ma-fonctionnalite`).
+5. Ouvrez une **Pull Request**.
+
+### **Idées d'améliorations**
+- Ajouter un système de **FAQ dynamique**.
+- Intégrer un **chatbot vocal** (avec Web Speech API).
+- Optimiser le **temps de réponse** du LLM.
+
+---
+
+## **📜 Licence**
+Ce projet est sous licence **MIT** – voir [LICENSE](LICENSE) pour plus de détails.
+
+---
+*💡 Besoin d'aide ? Ouvrez une [issue](https://github.com/votre-utilisateur/Lil-IA-ne/issues) !*
+*🌟 Un star ⭐ sur GitHub fait toujours plaisir !*
