@@ -33,6 +33,11 @@ RÈGLES IMPORTANTES :
 - Tu peux utiliser des emojis
 - Donne des informations utiles pour les lycéens et leurs parents
 
+IMPORTANT - Affichage d'images :
+- Pour afficher une image, utilise la syntaxe Markdown : ![Description](nom_fichier)
+- Exemple : ![Logo BTS SIO](logo.png)
+- Les images seront automatiquement chargées depuis /images/
+
 BASE DE CONNAISSANCES :
 
 """
@@ -72,20 +77,10 @@ BASE DE CONNAISSANCES :
                     system_content += "\n"
         
         # Créer le Modelfile avec des paramètres pour la concision
-        modelfile_content = f"""# Modelfile pour BTS SIO Saint Louis Châteaulin
-# Généré automatiquement le {datetime.now().strftime('%d/%m/%Y à %H:%M')}
-
-FROM {modele_base}
-
-# Instructions système
+        modelfile_content = f"""
 SYSTEM \"\"\"
 {system_content}
 \"\"\"
-
-# Paramètres optimisés pour des réponses concises
-PARAMETER temperature 0.7
-PARAMETER top_p 0.9
-PARAMETER top_k 40
 
 """
         
@@ -93,34 +88,7 @@ PARAMETER top_k 40
         with open(fichier_sortie, 'w', encoding='utf-8') as f:
             f.write(modelfile_content)
         
-        print("\n" + "=" * 70)
-        print("✅ GÉNÉRATION TERMINÉE")
-        print("=" * 70)
-        print(f"📁 Fichier généré : {fichier_sortie}")
-        print(f"📊 Statistiques :")
-        print(f"   - Total d'informations : {total_lignes} lignes")
-        print(f"   - Taille du contenu : {len(system_content)} caractères")
-        print(f"\n📋 Détails par catégorie :")
-        for feuille, nb in stats_par_feuille.items():
-            print(f"   - {feuille}: {nb} entrées")
         
-        print("\n" + "=" * 70)
-        print("🚀 COMMANDES SUIVANTES")
-        print("=" * 70)
-        print(f"1️⃣  Créer le modèle :")
-        print(f"    ollama create bts-sio-stlouis -f {fichier_sortie}")
-        print(f"\n2️⃣  Tester le modèle :")
-        print(f"    ollama run bts-sio-stlouis \"C'est quoi le BTS SIO ?\"")
-        print(f"\n3️⃣  Lancer en mode interactif :")
-        print(f"    ollama run bts-sio-stlouis")
-        print("=" * 70)
-        
-        # Afficher un aperçu
-        print("\n📄 APERÇU DU CONTENU (300 premiers caractères):")
-        print("-" * 70)
-        preview = system_content[:300].replace('\n', '\n   ')
-        print(f"   {preview}...")
-        print("-" * 70)
         
         # Sauvegarder aussi un fichier de debug pour vérifier
         debug_file = "debug_content.txt"
@@ -144,7 +112,7 @@ PARAMETER top_k 40
 if __name__ == "__main__":
     # Paramètres par défaut
     fichier_excel = "BTS_SIO_Infos.xlsx"
-    fichier_sortie = "Modelfile"
+    fichier_sortie = "system-prompt.txt"
     modele_base = "llama3.2"
     
     # Permettre de passer des arguments
